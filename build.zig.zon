@@ -1,0 +1,11 @@
+.{
+    .name = "percent_encoding",
+    .version = "0.0.1",
+    .minimum_zig_version = "0.12.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+    .dependencies = .{},
+}
