@@ -5,7 +5,7 @@
     .paths = .{
         "build.zig",
         "build.zig.zon",
-        "src",
+        "percent_encoding.zig",
     },
     .dependencies = .{},
 }
