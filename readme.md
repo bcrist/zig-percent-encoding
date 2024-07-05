@@ -33,3 +33,28 @@ Encoding can specify which kinds of bytes are encoded independently for:
 * other bytes
 
 Interpretation of spaces as `+` and vice versa can be configured for both encoding and decoding.
+
+## Encoding with `std`
+
+Consider using the standard library's [`std.Uri.Component.percentEncode`](https://ziglang.org/documentation/master/std/#std.Uri.Component.percentEncode) when:
+* You have a writer available
+* You don't mind creating an `isValidChar` helper function to pass in
+* You don't need to encode spaces as `+`
+
+## Decoding with `std`
+
+The standard library provides [`std.Uri.percentDecodeInPlace`](https://ziglang.org/documentation/master/std/#std.Uri.percentDecodeInPlace)/[`std.Uri.percentDecodeBackwards`](https://ziglang.org/documentation/master/std/#std.Uri.percentDecodeBackwards) however these require a preallocated mutable output buffer.  Additionally, they do not support decoding `+` as a space.
+
+## Performance comparison
+
+It's highly unlikely that percent encoding/decoding will be a bottleneck for most applications, but some performance comparisons with the `std` implementations are provided in the `benchmark.zig` file and can be run with `zig build benchmark`.  As with all microbenchmarks, take the results with several grains of salt.
+
+Here are the results from my machine:
+
+|                                  | Debug     | Release   |
+| -------------------------------- | --------- | --------- |
+| percent_encoding.encode_append   | 7.5 ns/B  | 3.5 ns/B  |
+| percent_encoding.fmtEncoded      | 9 ns/B    | 3.8 ns/B  |
+| std.Uri.Component.percentEncode  | 12 ns/B   | 2.5 ns/B  |
+| percent_encoding.decode_in_place | 8 ns/B    | 0.84 ns/B |
+| std.Uri.percentDecodeInPlace     | 9 ns/B    | 0.83 ns/B |

@@ -344,6 +344,20 @@ fn test_decode_append(input: []const u8, comptime options: Decode_Options, expec
     try std.testing.expectEqualStrings(expected, temp.items);
 }
 
+pub fn decode_in_place(encoded: []u8, comptime options: Decode_Options) []const u8 {
+    return decode_backwards(encoded, encoded, options);
+}
+
+pub fn decode_backwards(output: []u8, encoded: []const u8, comptime options: Decode_Options) []const u8 {
+    var remaining = output;
+    var iter = decode(encoded, options);
+    while (iter.next()) |span| {
+        std.mem.copyForwards(u8, remaining, span);
+        remaining = remaining[span.len..];
+    }
+    return output[0 .. output.len - remaining.len];
+}
+
 pub fn decode(encoded: []const u8, comptime options: Decode_Options) Decoder(options) {
     return .{ .remaining = encoded };
 }
