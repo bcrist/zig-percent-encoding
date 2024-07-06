@@ -53,8 +53,9 @@ Here are the results from my machine:
 
 |                                  | Debug     | Release   |
 | -------------------------------- | --------- | --------- |
-| percent_encoding.encode_append   | 7.5 ns/B  | 3.5 ns/B  |
-| percent_encoding.fmtEncoded      | 9 ns/B    | 3.8 ns/B  |
-| std.Uri.Component.percentEncode  | 12 ns/B   | 2.5 ns/B  |
-| percent_encoding.decode_in_place | 8 ns/B    | 0.84 ns/B |
-| std.Uri.percentDecodeInPlace     | 9 ns/B    | 0.83 ns/B |
+| percent_encoding.encode_append   | 6.2 ns/B  | 1.7 ns/B  |
+| percent_encoding.fmtEncoded      | 7.8 ns/B  | 1.9 ns/B  |
+| percent_encoding.encode_writer   | 8.0 ns/B  | 1.8 ns/B  |
+| std.Uri.Component.percentEncode  | 12 ns/B   | 2.4 ns/B  |
+| percent_encoding.decode_in_place | 7.7 ns/B  | 0.84 ns/B |
+| std.Uri.percentDecodeInPlace     | 8.9 ns/B  | 0.83 ns/B |

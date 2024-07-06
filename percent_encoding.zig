@@ -8,29 +8,91 @@ pub const Encode_Type_Space = enum {
     @"+",
 };
 pub const Encode_Options = struct {
-    unreserved: Encode_Type = .raw, // [-._~A-Za-z0-9]
+    alpha: Encode_Type = .raw, // [A-Za-z]
+    digits: Encode_Type = .raw, // [0-9]
     spaces: Encode_Type_Space = .@"+",
-    reserved: struct {
-        @"!": Encode_Type = .percent_encoded,
-        @"#": Encode_Type = .percent_encoded,
-        @"$": Encode_Type = .percent_encoded,
-        @"&": Encode_Type = .percent_encoded,
-        @"'": Encode_Type = .percent_encoded,
-        @"(": Encode_Type = .percent_encoded,
-        @")": Encode_Type = .percent_encoded,
-        @"*": Encode_Type = .percent_encoded,
-        @"+": Encode_Type = .percent_encoded,
-        @",": Encode_Type = .percent_encoded,
-        @"/": Encode_Type = .percent_encoded,
-        @":": Encode_Type = .percent_encoded,
-        @";": Encode_Type = .percent_encoded,
-        @"=": Encode_Type = .percent_encoded,
-        @"?": Encode_Type = .percent_encoded,
-        @"@": Encode_Type = .percent_encoded,
-        @"[": Encode_Type = .percent_encoded,
-        @"]": Encode_Type = .percent_encoded,
-    } = .{},
-    other: Encode_Type = .percent_encoded,
+    @"!": Encode_Type = .percent_encoded,
+    @"\"": Encode_Type = .percent_encoded,
+    @"#": Encode_Type = .percent_encoded,
+    @"$": Encode_Type = .percent_encoded,
+    @"%": Encode_Type = .percent_encoded,
+    @"&": Encode_Type = .percent_encoded,
+    @"'": Encode_Type = .percent_encoded,
+    @"(": Encode_Type = .percent_encoded,
+    @")": Encode_Type = .percent_encoded,
+    @"*": Encode_Type = .percent_encoded,
+    @"+": Encode_Type = .percent_encoded,
+    @",": Encode_Type = .percent_encoded,
+    @"-": Encode_Type = .raw,
+    @".": Encode_Type = .raw,
+    @"/": Encode_Type = .percent_encoded,
+    @":": Encode_Type = .percent_encoded,
+    @";": Encode_Type = .percent_encoded,
+    @"<": Encode_Type = .percent_encoded,
+    @"=": Encode_Type = .percent_encoded,
+    @">": Encode_Type = .percent_encoded,
+    @"?": Encode_Type = .percent_encoded,
+    @"@": Encode_Type = .percent_encoded,
+    @"[": Encode_Type = .percent_encoded,
+    @"\\": Encode_Type = .percent_encoded,
+    @"]": Encode_Type = .percent_encoded,
+    @"^": Encode_Type = .percent_encoded,
+    @"_": Encode_Type = .raw,
+    @"`": Encode_Type = .percent_encoded,
+    @"{": Encode_Type = .percent_encoded,
+    @"|": Encode_Type = .percent_encoded,
+    @"}": Encode_Type = .percent_encoded,
+    @"~": Encode_Type = .raw,
+    other: Encode_Type = .percent_encoded, // control chars, >= 0x80
+
+    pub fn should_encode(comptime self: Encode_Options, c: u8) bool {
+        if (self.alpha != self.other) switch (c | 0b00100000) {
+            'a'...'z' => return self.alpha != .raw,
+            else => {},
+        };
+        if (self.digits != self.other) switch (c) {
+            '0'...'9', '-', '.', '_', '~' => return self.digits != .raw,
+            else => {},
+        };
+
+        const spaces: Encode_Type = if (self.spaces == .raw) .raw else .percent_encoded;
+        if (spaces != self.other and c == ' ') return spaces != .raw;
+
+        if (self.@"!" != self.other and c == '!') return self.@"!" != .raw;
+        if (self.@"\"" != self.other and c == '"') return self.@"\"" != .raw;
+        if (self.@"#" != self.other and c == '#') return self.@"#" != .raw;
+        if (self.@"$" != self.other and c == '$') return self.@"$" != .raw;
+        if (self.@"%" != self.other and c == '%') return self.@"%" != .raw;
+        if (self.@"&" != self.other and c == '&') return self.@"&" != .raw;
+        if (self.@"'" != self.other and c == '\'') return self.@"'" != .raw;
+        if (self.@"(" != self.other and c == '(') return self.@"(" != .raw;
+        if (self.@")" != self.other and c == ')') return self.@")" != .raw;
+        if (self.@"*" != self.other and c == '*') return self.@"*" != .raw;
+        if (self.@"+" != self.other and c == '+') return self.@"+" != .raw;
+        if (self.@"," != self.other and c == ',') return self.@"," != .raw;
+        if (self.@"-" != self.other and c == '-') return self.@"-" != .raw;
+        if (self.@"." != self.other and c == '.') return self.@"." != .raw;
+        if (self.@"/" != self.other and c == '/') return self.@"/" != .raw;
+        if (self.@":" != self.other and c == ':') return self.@":" != .raw;
+        if (self.@";" != self.other and c == ';') return self.@";" != .raw;
+        if (self.@"<" != self.other and c == '<') return self.@"<" != .raw;
+        if (self.@"=" != self.other and c == '=') return self.@"=" != .raw;
+        if (self.@">" != self.other and c == '>') return self.@">" != .raw;
+        if (self.@"?" != self.other and c == '?') return self.@"?" != .raw;
+        if (self.@"@" != self.other and c == '@') return self.@"@" != .raw;
+        if (self.@"[" != self.other and c == '[') return self.@"[" != .raw;
+        if (self.@"\\" != self.other and c == '\\') return self.@"\\" != .raw;
+        if (self.@"]" != self.other and c == ']') return self.@"]" != .raw;
+        if (self.@"^" != self.other and c == '^') return self.@"^" != .raw;
+        if (self.@"_" != self.other and c == '_') return self.@"_" != .raw;
+        if (self.@"`" != self.other and c == '`') return self.@"`" != .raw;
+        if (self.@"{" != self.other and c == '{') return self.@"{" != .raw;
+        if (self.@"|" != self.other and c == '|') return self.@"|" != .raw;
+        if (self.@"}" != self.other and c == '}') return self.@"}" != .raw;
+        if (self.@"~" != self.other and c == '~') return self.@"~" != .raw;
+
+        return self.other != .raw;
+    }
 };
 
 pub fn encode_alloc(allocator: std.mem.Allocator, raw: []const u8, comptime options: Encode_Options) ![]const u8 {
@@ -59,7 +121,6 @@ test encode_alloc {
     try test_encode_alloc(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_alloc("Hello World", .{ .spaces = .raw }, "Hello World");
     try test_encode_alloc("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
-    try test_encode_alloc("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .unreserved = .percent_encoded }, "%7E%5F%2E%2D%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
     try test_encode_alloc("\x00\xFF", .{}, "%00%FF");
     try test_encode_alloc("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
     try test_encode_alloc("!!", .{}, "%21%21");
@@ -89,23 +150,23 @@ test encode_alloc {
     try test_encode_alloc("!{", .{}, "%21%7B");
     try test_encode_alloc("!|", .{}, "%21%7C");
     try test_encode_alloc("!}", .{}, "%21%7D");
-    try test_encode_alloc("!!", .{ .reserved = .{ .@"!" = .raw }}, "!!");
-    try test_encode_alloc("!#", .{ .reserved = .{ .@"#" = .raw }}, "%21#");
-    try test_encode_alloc("!$", .{ .reserved = .{ .@"$" = .raw }}, "%21$");
-    try test_encode_alloc("!&", .{ .reserved = .{ .@"&" = .raw }}, "%21&");
-    try test_encode_alloc("!'", .{ .reserved = .{ .@"'" = .raw }}, "%21'");
-    try test_encode_alloc("!(", .{ .reserved = .{ .@"(" = .raw }}, "%21(");
-    try test_encode_alloc("!)", .{ .reserved = .{ .@")" = .raw }}, "%21)");
-    try test_encode_alloc("!*", .{ .reserved = .{ .@"*" = .raw }}, "%21*");
-    try test_encode_alloc("!,", .{ .reserved = .{ .@"," = .raw }}, "%21,");
-    try test_encode_alloc("!/", .{ .reserved = .{ .@"/" = .raw }}, "%21/");
-    try test_encode_alloc("!:", .{ .reserved = .{ .@":" = .raw }}, "%21:");
-    try test_encode_alloc("!;", .{ .reserved = .{ .@";" = .raw }}, "%21;");
-    try test_encode_alloc("!=", .{ .reserved = .{ .@"=" = .raw }}, "%21=");
-    try test_encode_alloc("!?", .{ .reserved = .{ .@"?" = .raw }}, "%21?");
-    try test_encode_alloc("!@", .{ .reserved = .{ .@"@" = .raw }}, "%21@");
-    try test_encode_alloc("![", .{ .reserved = .{ .@"[" = .raw }}, "%21[");
-    try test_encode_alloc("!]", .{ .reserved = .{ .@"]" = .raw }}, "%21]");
+    try test_encode_alloc("!!", .{ .@"!" = .raw }, "!!");
+    try test_encode_alloc("!#", .{ .@"#" = .raw }, "%21#");
+    try test_encode_alloc("!$", .{ .@"$" = .raw }, "%21$");
+    try test_encode_alloc("!&", .{ .@"&" = .raw }, "%21&");
+    try test_encode_alloc("!'", .{ .@"'" = .raw }, "%21'");
+    try test_encode_alloc("!(", .{ .@"(" = .raw }, "%21(");
+    try test_encode_alloc("!)", .{ .@")" = .raw }, "%21)");
+    try test_encode_alloc("!*", .{ .@"*" = .raw }, "%21*");
+    try test_encode_alloc("!,", .{ .@"," = .raw }, "%21,");
+    try test_encode_alloc("!/", .{ .@"/" = .raw }, "%21/");
+    try test_encode_alloc("!:", .{ .@":" = .raw }, "%21:");
+    try test_encode_alloc("!;", .{ .@";" = .raw }, "%21;");
+    try test_encode_alloc("!=", .{ .@"=" = .raw }, "%21=");
+    try test_encode_alloc("!?", .{ .@"?" = .raw }, "%21?");
+    try test_encode_alloc("!@", .{ .@"@" = .raw }, "%21@");
+    try test_encode_alloc("![", .{ .@"[" = .raw }, "%21[");
+    try test_encode_alloc("!]", .{ .@"]" = .raw }, "%21]");
 }
 fn test_encode_alloc(input: []const u8, comptime options: Encode_Options, expected: []const u8) !void {
     const actual = try encode_alloc(std.testing.allocator, input, options);
@@ -139,7 +200,7 @@ test encode_maybe_append {
     try test_encode_maybe_append(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_maybe_append("Hello World", .{ .spaces = .raw }, "Hello World");
     try test_encode_maybe_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
-    try test_encode_maybe_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .unreserved = .percent_encoded }, "%7E%5F%2E%2D%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
+    try test_encode_maybe_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "~_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
     try test_encode_maybe_append("\x00\xFF", .{}, "%00%FF");
     try test_encode_maybe_append("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
 }
@@ -164,7 +225,7 @@ test encode_append {
     try test_encode_append(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_append("Hello World", .{ .spaces = .raw }, "Hello World");
     try test_encode_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
-    try test_encode_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .unreserved = .percent_encoded }, "%7E%5F%2E%2D%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
+    try test_encode_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "~_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
     try test_encode_append("\x00\xFF", .{}, "%00%FF");
     try test_encode_append("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
 }
@@ -176,11 +237,18 @@ fn test_encode_append(input: []const u8, comptime options: Encode_Options, expec
     try std.testing.expectEqualStrings(expected, temp.items);
 }
 
+pub fn encode_writer(writer: anytype, input: []const u8, comptime options: Encode_Options) @TypeOf(writer).Error!void {
+    var encoder = encode(input, options);
+    while (encoder.next()) |chunk| {
+        try writer.writeAll(chunk);
+    }
+}
+
 pub fn encode(raw: []const u8, comptime options: Encode_Options) Encoder(options) {
     return .{ .remaining = raw };
 }
 pub fn Encoder(comptime options: Encode_Options) type {
-    comptime if (options.spaces == .@"+") std.debug.assert(options.reserved.@"+" == .percent_encoded);
+    comptime if (options.spaces == .@"+") std.debug.assert(options.@"+" == .percent_encoded);
     return struct {
         remaining: []const u8,
         temp: [3]u8 = "%00".*,
@@ -190,12 +258,7 @@ pub fn Encoder(comptime options: Encode_Options) type {
             if (remaining.len == 0) return null;
 
             for (0.., remaining) |i, c| {
-                const should_encode = switch (c) {
-                    'A'...'Z', 'a'...'z', '0'...'9', '-', '_', '.', '~' => options.unreserved == .percent_encoded,
-                    inline '!', '#', '$', '&', '\'', '(', ')', '*', '+', ',', '/', ':', ';', '=', '?', '@', '[', ']' => |cc| @field(options.reserved, &.{cc} ) == .percent_encoded,
-                    ' ' => options.spaces != .raw,
-                    else => options.other == .percent_encoded,
-                };
+                const should_encode = options.should_encode(c);
 
                 if (should_encode) {
                     if (i > 0) {
@@ -418,58 +481,85 @@ fn format(raw: []const u8, comptime fmt: []const u8, _: std.fmt.FormatOptions, w
     } else if (fmt.len > 0) {
         comptime var final_fmt = fmt;
         comptime var apply_type: Encode_Type = .raw;
-        if (comptime std.mem.startsWith(u8, fmt, "except")) {
+        if (comptime std.mem.startsWith(u8, fmt, "allow")) {
+            final_fmt = fmt["allow".len..];
+        } else if (comptime std.mem.startsWith(u8, fmt, "except")) {
             final_fmt = fmt["except".len..];
+            encode_options.@"-" = .percent_encoded;
+            encode_options.@"." = .percent_encoded;
+            encode_options.@"_" = .percent_encoded;
+            encode_options.@"~" = .percent_encoded;
         } else if (comptime std.mem.startsWith(u8, fmt, "only")) {
             final_fmt = fmt["only".len..];
             apply_type = .percent_encoded;
-            encode_options.reserved = .{
-                .@"!" = .raw,
-                .@"#" = .raw,
-                .@"$" = .raw,
-                .@"&" = .raw,
-                .@"'" = .raw,
-                .@"(" = .raw,
-                .@")" = .raw,
-                .@"*" = .raw,
-                .@"+" = .raw,
-                .@"," = .raw,
-                .@"/" = .raw,
-                .@":" = .raw,
-                .@";" = .raw,
-                .@"=" = .raw,
-                .@"?" = .raw,
-                .@"@" = .raw,
-                .@"[" = .raw,
-                .@"]" = .raw,
-            };
+            encode_options.@"!" = .raw;
+            encode_options.@"\"" = .raw;
+            encode_options.@"#" = .raw;
+            encode_options.@"$" = .raw;
+            encode_options.@"%" = .raw;
+            encode_options.@"&" = .raw;
+            encode_options.@"'" = .raw;
+            encode_options.@"(" = .raw;
+            encode_options.@")" = .raw;
+            encode_options.@"*" = .raw;
+            encode_options.@"+" = .raw;
+            encode_options.@"," = .raw;
+            encode_options.@"/" = .raw;
+            encode_options.@":" = .raw;
+            encode_options.@";" = .raw;
+            encode_options.@"<" = .raw;
+            encode_options.@"=" = .raw;
+            encode_options.@">" = .raw;
+            encode_options.@"?" = .raw;
+            encode_options.@"@" = .raw;
+            encode_options.@"[" = .raw;
+            encode_options.@"\\" = .raw;
+            encode_options.@"]" = .raw;
+            encode_options.@"^" = .raw;
+            encode_options.@"`" = .raw;
+            encode_options.@"{" = .raw;
+            encode_options.@"|" = .raw;
+            encode_options.@"}" = .raw;
         } else {
-            @compileError("Format string must be empty or begin with 'only' or 'except', but found: " ++ fmt);
+            @compileError("Format string must be empty or begin with 'allow', 'except', or 'only', but found: " ++ fmt);
         }
         inline for (final_fmt) |c| switch (c) {
-            '_' => {}, // necessary as the first character to avoid special cases for [, *, etc.
-            '!' => encode_options.reserved.@"!" = apply_type,
-            '#' => encode_options.reserved.@"#" = apply_type,
-            '$' => encode_options.reserved.@"$" = apply_type,
-            '&' => encode_options.reserved.@"&" = apply_type,
-            '\'' => encode_options.reserved.@"'" = apply_type,
-            '(' => encode_options.reserved.@"(" = apply_type,
-            ')' => encode_options.reserved.@")" = apply_type,
-            '*' => encode_options.reserved.@"*" = apply_type,
-            '+' => encode_options.reserved.@"+" = apply_type,
-            ',' => encode_options.reserved.@"," = apply_type,
-            '/' => encode_options.reserved.@"/" = apply_type,
-            'c' => encode_options.reserved.@":" = apply_type,
-            ';' => encode_options.reserved.@";" = apply_type,
-            '=' => encode_options.reserved.@"=" = apply_type,
-            '?' => encode_options.reserved.@"?" = apply_type,
-            '@' => encode_options.reserved.@"@" = apply_type,
-            '[' => encode_options.reserved.@"[" = apply_type,
-            ']' => encode_options.reserved.@"]" = apply_type,
+            '!' => encode_options.@"!" = apply_type,
+            '"' => encode_options.@"\"" = apply_type,
+            '#' => encode_options.@"#" = apply_type,
+            '$' => encode_options.@"$" = apply_type,
+            '%' => encode_options.@"%" = apply_type,
+            '&' => encode_options.@"&" = apply_type,
+            '\'' => encode_options.@"'" = apply_type,
+            '(' => encode_options.@"(" = apply_type,
+            ')' => encode_options.@")" = apply_type,
+            '*' => encode_options.@"*" = apply_type,
+            '+' => encode_options.@"+" = apply_type,
+            ',' => encode_options.@"," = apply_type,
+            '-' => encode_options.@"-" = apply_type,
+            '.' => encode_options.@"." = apply_type,
+            '/' => encode_options.@"/" = apply_type,
+            'c' => encode_options.@":" = apply_type,
+            ';' => encode_options.@";" = apply_type,
+            '<' => encode_options.@"<" = apply_type,
+            '=' => encode_options.@"=" = apply_type,
+            '>' => encode_options.@">" = apply_type,
+            '?' => encode_options.@"?" = apply_type,
+            '@' => encode_options.@"@" = apply_type,
+            '[' => encode_options.@"[" = apply_type,
+            '\\' => encode_options.@"\\" = apply_type,
+            ']' => encode_options.@"]" = apply_type,
+            '^' => encode_options.@"^" = apply_type,
+            '_' => encode_options.@"_" = apply_type,
+            '`' => encode_options.@"`" = apply_type,
+            '{' => encode_options.@"{" = apply_type,
+            '|' => encode_options.@"|" = apply_type,
+            '}' => encode_options.@"}" = apply_type,
+            '~' => encode_options.@"~" = apply_type,
             ' ' => encode_options.spaces = apply_type,
             else => @compileError("invalid percent encoding specifier: " ++ fmt),
         };
-        if (encode_options.reserved.@"+" == .raw and encode_options.spaces == .@"+") {
+        if (encode_options.@"+" == .raw and encode_options.spaces == .@"+") {
             encode_options.spaces = .percent_encoded;
         }
     }

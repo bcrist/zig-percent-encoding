@@ -61,7 +61,7 @@ pub fn main() !void {
         const writer = temp.writer();
 
         const begin = std.time.nanoTimestamp();
-        try writer.print("{}", .{ percent_encoding.fmtEncoded(content.items) });
+        try writer.print("{ }", .{ percent_encoding.fmtEncoded(content.items) });
         const end = std.time.nanoTimestamp();
 
         if (i >= warmup_iterations) {
@@ -69,6 +69,22 @@ pub fn main() !void {
             const bytes: f64 = @floatFromInt(content.items.len);
             const nanos_per_byte = nanos / bytes;
             std.debug.print("percent_encoding.fmtEncoded: {} ns/B\n", .{ nanos_per_byte });
+        }
+    }
+
+    for (0..total_iterations) |i| {
+        temp.clearRetainingCapacity();
+        const writer = temp.writer();
+
+        const begin = std.time.nanoTimestamp();
+        try percent_encoding.encode_writer(writer, content.items, .{ .spaces = .percent_encoded });
+        const end = std.time.nanoTimestamp();
+
+        if (i >= warmup_iterations) {
+            const nanos: f64 = @floatFromInt(end - begin);
+            const bytes: f64 = @floatFromInt(content.items.len);
+            const nanos_per_byte = nanos / bytes;
+            std.debug.print("percent_encoding.encode_writer: {} ns/B\n", .{ nanos_per_byte });
         }
     }
 
