@@ -15,7 +15,7 @@ This library can be used in a variety of ways:
 * ASCII symbols
 * C0 control characters and bytes >= 0x80
 
-The default `Encode_Options` is conservative; it will encode `application/x-www-form-urlencoded` data according to [HTML's rules](https://url.spec.whatwg.org/#concept-urlencoded-serializer), except that spaces will be encoded as `%20` instead of `+`. Servers generally don't care if `%20` or `+` is used, so this shouldn't be a problem, and it means it can also be used safely to escape URIs data.  Encoding spaces as `+` can be enabled explicitly if desired.
+The default `Encode_Options` is conservative; it will encode `application/x-www-form-urlencoded` data according to [HTML's rules](https://url.spec.whatwg.org/#concept-urlencoded-serializer), except that spaces will be encoded as `%20` instead of `+`. Servers generally don't care if `%20` or `+` is used, so this shouldn't be a problem, and it means it can also be used safely to escape URI data.  Encoding spaces as `+` can be enabled explicitly if desired.
 
 When decoding, `+` _will_ be treated as a space by default, so make sure you turn this off explicitly if you're processing data where `+` is meant to be an unencoded literal `+`.
 

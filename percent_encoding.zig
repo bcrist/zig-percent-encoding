@@ -421,6 +421,13 @@ pub fn decode_backwards(output: []u8, encoded: []const u8, comptime options: Dec
     return output[0 .. output.len - remaining.len];
 }
 
+pub fn decode_writer(writer: anytype, encoded: []const u8, comptime options: Decode_Options) @TypeOf(writer).Error!void {
+    var iter = decode(encoded, options);
+    while (iter.next()) |part| {
+        try writer.writeAll(part);
+    }
+}
+
 pub fn decode(encoded: []const u8, comptime options: Decode_Options) Decoder(options) {
     return .{ .remaining = encoded };
 }
