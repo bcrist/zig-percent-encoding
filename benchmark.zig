@@ -148,10 +148,7 @@ pub fn main() !void {
 }
 
 fn is_valid(c: u8) bool {
-    return switch (c) {
-        '-', '.', '_', '~', 'A'...'Z', 'a'...'z', '0'...'9' => true,
-        else => false,
-    };
+    return !percent_encoding.Encode_Options.should_encode(.{}, c);
 }
 
 var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
