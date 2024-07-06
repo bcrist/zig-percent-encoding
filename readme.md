@@ -9,30 +9,13 @@ This library can be used in a variety of ways:
 * Use `std.fmt.Formatter` aware APIs with `fmtEncoded()`.
 
 Encoding can specify which kinds of bytes are encoded independently for:
-* unreserved characters (`[-._~A-Za-z0-9]`)
+* ASCII alphabetical characters (`[A-Za-z]`)
+* Decimal digits (`[0-9]`)
 * spaces
-* each of the reserved characters
-    * `!`
-    * `#`
-    * `$`
-    * `&`
-    * `'`
-    * `(`
-    * `)`
-    * `*`
-    * `+`
-    * `,`
-    * `/`
-    * `:`
-    * `;`
-    * `=`
-    * `?`
-    * `@`
-    * `[`
-    * `]`
-* other bytes
+* ASCII symbols
+* C0 control characters and bytes >= 0x80
 
-Interpretation of spaces as `+` and vice versa can be configured for both encoding and decoding.
+Interpretation of spaces as `+` and vice versa (for `application/x-www-form-urlencoded`) can be configured for both encoding and decoding.  This is not the default for encoding, since most servers will accept `%20` instead, and using `+` is not allowed in certain parts of URIs.  When decoding, `+` _will_ be treated as a space by default, so make sure you turn this off explicitly if you're processing data where `+` is meant to be an unencoded literal `+`.
 
 ## Encoding with `std`
 
