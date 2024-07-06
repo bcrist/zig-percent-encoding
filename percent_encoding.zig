@@ -42,7 +42,7 @@ pub const Encode_Options = struct {
     @"{": Encode_Type = .percent_encoded,
     @"|": Encode_Type = .percent_encoded,
     @"}": Encode_Type = .percent_encoded,
-    @"~": Encode_Type = .raw,
+    @"~": Encode_Type = .percent_encoded, // This is normally considered an unreserved character, but https://url.spec.whatwg.org/#application-x-www-form-urlencoded-percent-encode-set includes it so we default to encoding it.
     other: Encode_Type = .percent_encoded, // control chars, >= 0x80
 
     pub fn should_encode(comptime self: Encode_Options, c: u8) bool {

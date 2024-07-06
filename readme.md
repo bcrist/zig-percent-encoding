@@ -8,14 +8,16 @@ This library can be used in a variety of ways:
 * Use `encode_maybe_append()` or `decode_maybe_append()`.  Similar to `*_append()`, except the ArrayList won't be modified if the input and output are identical.  The input string must not be owned by the ArrayList.  Returns either the input string, or a slice from the ArrayList.  The ArrayList does not need to be empty and won't be cleared before appending.
 * Use `std.fmt.Formatter` aware APIs with `fmtEncoded()`.
 
-Encoding can specify which kinds of bytes are encoded independently for:
+`Encode_Options` can specify which kinds of bytes are encoded independently for:
 * ASCII alphabetical characters (`[A-Za-z]`)
 * Decimal digits (`[0-9]`)
 * spaces
 * ASCII symbols
 * C0 control characters and bytes >= 0x80
 
-Interpretation of spaces as `+` and vice versa (for `application/x-www-form-urlencoded`) can be configured for both encoding and decoding.  This is not the default for encoding, since most servers will accept `%20` instead, and using `+` is not allowed in certain parts of URIs.  When decoding, `+` _will_ be treated as a space by default, so make sure you turn this off explicitly if you're processing data where `+` is meant to be an unencoded literal `+`.
+The default `Encode_Options` is conservative; it will encode `application/x-www-form-urlencoded` data according to [HTML's rules](https://url.spec.whatwg.org/#concept-urlencoded-serializer), except that spaces will be encoded as `%20` instead of `+`. Servers generally don't care if `%20` or `+` is used, so this shouldn't be a problem, and it means it can also be used safely to escape URIs data.  Encoding spaces as `+` can be enabled explicitly if desired.
+
+When decoding, `+` _will_ be treated as a space by default, so make sure you turn this off explicitly if you're processing data where `+` is meant to be an unencoded literal `+`.
 
 ## Encoding with `std`
 
