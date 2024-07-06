@@ -117,10 +117,11 @@ pub fn encode_alloc(allocator: std.mem.Allocator, raw: []const u8, comptime opti
 test encode_alloc {
     try test_encode_alloc("", .{}, "");
     try test_encode_alloc("Hellorld!", .{}, "Hellorld%21");
-    try test_encode_alloc("a b c", .{}, "a+b+c");
+    try test_encode_alloc("a b c", .{}, "a%20b%20c");
+    try test_encode_alloc("a b c", .{ .spaces = .@"+" }, "a+b+c");
     try test_encode_alloc(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_alloc("Hello World", .{ .spaces = .raw }, "Hello World");
-    try test_encode_alloc("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
+    try test_encode_alloc("_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
     try test_encode_alloc("\x00\xFF", .{}, "%00%FF");
     try test_encode_alloc("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
     try test_encode_alloc("!!", .{}, "%21%21");
@@ -196,11 +197,10 @@ pub fn encode_maybe_append(list: *std.ArrayList(u8), raw: []const u8, comptime o
 test encode_maybe_append {
     try test_encode_maybe_append("", .{}, "");
     try test_encode_maybe_append("Hellorld!", .{}, "Hellorld%21");
-    try test_encode_maybe_append("a b c", .{}, "a+b+c");
     try test_encode_maybe_append(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_maybe_append("Hello World", .{ .spaces = .raw }, "Hello World");
-    try test_encode_maybe_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
-    try test_encode_maybe_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "~_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
+    try test_encode_maybe_append("_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
+    try test_encode_maybe_append("_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
     try test_encode_maybe_append("\x00\xFF", .{}, "%00%FF");
     try test_encode_maybe_append("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
 }
@@ -221,11 +221,10 @@ pub fn encode_append(list: *std.ArrayList(u8), raw: []const u8, comptime options
 test encode_append {
     try test_encode_append("", .{}, "");
     try test_encode_append("Hellorld!", .{}, "Hellorld%21");
-    try test_encode_append("a b c", .{}, "a+b+c");
     try test_encode_append(" ", .{ .spaces = .percent_encoded }, "%20");
     try test_encode_append("Hello World", .{ .spaces = .raw }, "Hello World");
-    try test_encode_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
-    try test_encode_append("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "~_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
+    try test_encode_append("_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{}, "_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
+    try test_encode_append("_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", .{ .alpha = .percent_encoded, .digits = .percent_encoded }, "_.-%41%42%43%44%45%46%47%48%49%4A%4B%4C%4D%4E%4F%50%51%52%53%54%55%56%57%58%59%5A%30%31%32%33%34%35%36%37%38%39%61%62%63%64%65%66%67%68%69%6A%6B%6C%6D%6E%6F%70%71%72%73%74%75%76%77%78%79%7A");
     try test_encode_append("\x00\xFF", .{}, "%00%FF");
     try test_encode_append("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
 }
@@ -483,9 +482,7 @@ pub fn fmtEncoded(raw: []const u8) std.fmt.Formatter(format) {
 fn format(raw: []const u8, comptime fmt: []const u8, _: std.fmt.FormatOptions, writer: anytype) @TypeOf(writer).Error!void {
     comptime var encode_options: Encode_Options = .{};
 
-    if (comptime std.mem.eql(u8, fmt, " ")) {
-        encode_options.spaces = .percent_encoded;
-    } else if (fmt.len > 0) {
+    if (fmt.len > 0) {
         comptime var final_fmt = fmt;
         comptime var apply_type: Encode_Type = .raw;
         if (comptime std.mem.startsWith(u8, fmt, "allow")) {
@@ -580,8 +577,7 @@ fn format(raw: []const u8, comptime fmt: []const u8, _: std.fmt.FormatOptions, w
 test fmtEncoded {
     try test_fmtEncoded("", "", "");
     try test_fmtEncoded("Hellorld!", "", "Hellorld%21");
-    try test_fmtEncoded("a b c", "", "a+b+c");
-    try test_fmtEncoded(" ", " ", "%20");
+    try test_fmtEncoded(" ", "", "%20");
     try test_fmtEncoded("~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz", "", "~_.-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz");
     try test_fmtEncoded("@*", "only*", "@%2A");
     try test_fmtEncoded("[@*]", "except[]", "[%40%2A]");

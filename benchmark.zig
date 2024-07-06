@@ -61,7 +61,7 @@ pub fn main() !void {
         const writer = temp.writer();
 
         const begin = std.time.nanoTimestamp();
-        try writer.print("{ }", .{ percent_encoding.fmtEncoded(content.items) });
+        try writer.print("{}", .{ percent_encoding.fmtEncoded(content.items) });
         const end = std.time.nanoTimestamp();
 
         if (i >= warmup_iterations) {
