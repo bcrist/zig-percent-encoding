@@ -1,11 +1,13 @@
 .{
-    .name = "percent_encoding",
-    .version = "0.0.3",
-    .minimum_zig_version = "0.12.0",
+    .name = .percent_encoding,
+    .fingerprint = 0x172ce91980b009c0,
+    .version = "0.1.0",
+    .minimum_zig_version = "0.16.0-dev.2626+0e3c6514a",
     .paths = .{
         "build.zig",
         "build.zig.zon",
         "percent_encoding.zig",
+        "license",
     },
     .dependencies = .{},
 }
