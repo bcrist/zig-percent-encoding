@@ -168,9 +168,9 @@ pub const Encode_Options = struct {
     };
 
     pub fn init(base: Encode_Options, overrides: Encode_Type_Overrides) Encode_Options {
-        return base.override_spaces(overrides.spaces orelse base.spaces)
-            .override(overrides.raw, .raw)
-            .override(overrides.percent_encoded, .percent_encoded);
+        var options = base.override(overrides.raw, .raw).override(overrides.percent_encoded, .percent_encoded);
+        if (overrides.spaces) |spaces| options = options.override_spaces(spaces);
+        return options;
     }
 
     pub fn override(self: Encode_Options, chars: []const u8, new_encode_type: Encode_Type) Encode_Options {
@@ -211,9 +211,12 @@ pub const Encode_Options = struct {
             '|' => options.@"|" = new_encode_type,
             '}' => options.@"}" = new_encode_type,
             '~' => options.@"~" = new_encode_type,
+            ' ' => options.spaces = switch (new_encode_type) {
+                .percent_encoded => .percent_encoded,
+                .raw => .raw,
+            },
             'B'...'Y', 'b'...'y' => @compileError("Use .override('A') to override alpha behavior or .override('Z') to override non-printable/non-ascii characters"),
             '1'...'9' => @compileError("Use .override('0') to override digit behavior"),
-            ' ' => @compileError("Use .override_spaces() to override space behavior"),
             else => @compileError("Invalid encoding override character: " ++ &.{ char }),
         };
         return options;
