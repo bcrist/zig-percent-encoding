@@ -9,9 +9,11 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const tests = b.addTest(.{
-        .root_source_file = b.path("percent_encoding.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("percent_encoding.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     const run_tests = b.addRunArtifact(tests);
@@ -20,9 +22,11 @@ pub fn build(b: *std.Build) void {
 
     const benchmark = b.addExecutable(.{
         .name = "benchmark",
-        .root_source_file = b.path("benchmark.zig"),
-        .target = target,
-        .optimize = optimize,
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("benchmark.zig"),
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     const run_benchmark = b.addRunArtifact(benchmark);

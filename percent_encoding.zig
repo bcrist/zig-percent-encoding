@@ -205,8 +205,8 @@ test encode_maybe_append {
     try test_encode_maybe_append("\x00\xFF", .{ .other = .raw }, "\x00\xFF");
 }
 fn test_encode_maybe_append(input: []const u8, comptime options: Encode_Options, expected: []const u8) !void {
-    var temp = std.ArrayList(u8).init(std.testing.allocator);
-    defer temp.deinit();
+    var temp: std.ArrayList(u8) = .empty;
+    defer temp.deinit(std.testing.allocator);
 
     const actual = try encode_maybe_append(&temp, input, options);
     try std.testing.expectEqualStrings(expected, actual);
