@@ -17,3 +17,4 @@ jobs:
           version: master
       - run: zig build -Dtarget=x86_64-windows
       - run: zig build test benchmark
+      - run: zig build benchmark -Doptimize=ReleaseSafe
