@@ -1,7 +1,7 @@
 
-const min_content_length = 100 * 1024 * 1024;
-const total_iterations = 10;
-const warmup_iterations = 2;
+const min_content_length = 50 * 1024 * 1024;
+const total_iterations = 5;
+const warmup_iterations = 1;
 
 pub fn main(init: std.process.Init) !void {
     var content: std.ArrayList(u8) = try .initCapacity(init.gpa, min_content_length + 100);
