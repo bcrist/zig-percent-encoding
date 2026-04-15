@@ -1,12 +1,17 @@
 # Percent (URL) Encoding and Decoding for Zig
 
-This library can be used in a variety of ways:
+The zig standard library contains some basic percent encoding functions:
+* `std.Uri.percentEncode`
+* `std.Uri.Component.format*`
+* `std.Uri.percentDecodeBackwards`
+* `std.Uri.percentDecodeInPlace`
 
+This library provides an alternative implementation that's more flexible:
 * Use `encode()` or `decode()` directly as an iterator.  They will return slices of the output until the whole input string has been encoded or decoded.
 * Use `encode_alloc()` or `decode_alloc()`.  It will always return a single slice allocated from the provided allocator, even if the output is identical to the input.
 * Use `encode_append()` or `decode_append()`.  Instead of an allocator, you can pass a `*std.ArrayList(u8)` and the result will be appended to it.  The input string must not be owned by the ArrayList.
 * Use `encode_maybe_append()` or `decode_maybe_append()`.  Similar to `*_append()`, except the ArrayList won't be modified if the input and output are identical.  The input string must not be owned by the ArrayList.  Returns either the input string, or a slice from the ArrayList.  The ArrayList does not need to be empty and won't be cleared before appending.
-* Use `std.fmt.Formatter` aware APIs with `fmtEncoded()`.
+* Use with `std.Io.Writer.print` with `fmt()`.
 
 `Encode_Options` can specify which kinds of bytes are encoded independently for:
 * ASCII alphabetical characters (`[A-Za-z]`)
@@ -36,11 +41,14 @@ It's highly unlikely that percent encoding/decoding will be a bottleneck for mos
 
 Here are the results from my machine:
 
-|                                  | Debug     | Release   |
-| -------------------------------- | --------- | --------- |
-| percent_encoding.encode_append   | 6.2 ns/B  | 1.7 ns/B  |
-| percent_encoding.fmtEncoded      | 7.8 ns/B  | 1.9 ns/B  |
-| percent_encoding.encode_writer   | 8.0 ns/B  | 1.8 ns/B  |
-| std.Uri.Component.percentEncode  | 12 ns/B   | 2.4 ns/B  |
-| percent_encoding.decode_in_place | 7.7 ns/B  | 0.84 ns/B |
-| std.Uri.percentDecodeInPlace     | 8.9 ns/B  | 0.83 ns/B |
+| Encoding Method                  | Debug     | ReleaseSafe | ReleaseFast |
+| -------------------------------- | --------- | ----------- | ----------- |
+| percent_encoding.encode_append   | 6.4 ns/B  | 1.8 ns/B    | 1.7 ns/B    |
+| percent_encoding.fmt             | 5.9 ns/B  | 1.7 ns/B    | 1.7 ns/B    |
+| percent_encoding.encode_writer   | 6.0 ns/B  | 1.7 ns/B    | 1.7 ns/B    |
+| std.Uri.Component.percentEncode  | 8.6 ns/B  | 2.2 ns/B    | 1.9 ns/B    |
+
+| Decoding Method                  | Debug     | ReleaseSafe | ReleaseFast |
+| -------------------------------- | --------- | ----------- | ----------- |
+| percent_encoding.decode_in_place | 8.7 ns/B  | 0.82 ns/B   | 0.80 ns/B   |
+| std.Uri.percentDecodeInPlace     | 9.2 ns/B  | 1.0 ns/B    | 0.96 ns/B   |
