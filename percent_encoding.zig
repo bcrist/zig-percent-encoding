@@ -686,7 +686,7 @@ test fmt {
     try test_fmt("[@*]", .init(.all, .{ .raw = "[]" }), "[%40%2A]");
 }
 fn test_fmt(input: []const u8, comptime options: Encode_Options, expected: []const u8) !void {
-    const temp = try std.fmt.allocPrint(std.testing.allocator, "{f}", .{fmt(input, options)});
+    const temp = try std.testing.allocator.print("{f}", .{fmt(input, options)});
     defer std.testing.allocator.free(temp);
     try std.testing.expectEqualStrings(expected, temp);
 }
