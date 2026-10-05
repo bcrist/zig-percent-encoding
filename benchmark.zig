@@ -1,4 +1,3 @@
-
 const min_content_length = 50 * 1024 * 1024;
 const total_iterations = 5;
 const warmup_iterations = 1;
@@ -6,7 +5,7 @@ const warmup_iterations = 1;
 pub fn main(init: std.process.Init) !void {
     var content: std.ArrayList(u8) = try .initCapacity(init.gpa, min_content_length + 100);
     defer content.deinit(init.gpa);
-    
+
     var seed: [4]u64 = undefined;
     std.Io.random(init.io, std.mem.asBytes(&seed));
 
@@ -48,7 +47,7 @@ pub fn main(init: std.process.Init) !void {
             const nanos: f64 = @floatFromInt(begin.durationTo(end).toNanoseconds());
             const bytes: f64 = @floatFromInt(content.items.len);
             const nanos_per_byte = nanos / bytes;
-            std.debug.print("percent_encoding.encode_append: {} ns/B\n", .{ nanos_per_byte });
+            std.debug.print("percent_encoding.encode_append: {} ns/B\n", .{nanos_per_byte});
         }
     }
 
@@ -57,7 +56,7 @@ pub fn main(init: std.process.Init) !void {
         var writer = std.Io.Writer.Allocating.fromArrayList(init.gpa, &temp);
 
         const begin = std.Io.Clock.awake.now(init.io);
-        try writer.writer.print("{f}", .{ percent_encoding.fmt(content.items, .default) });
+        try writer.writer.print("{f}", .{percent_encoding.fmt(content.items, .default)});
         const end = std.Io.Clock.awake.now(init.io);
 
         temp = writer.toArrayList();
@@ -66,7 +65,7 @@ pub fn main(init: std.process.Init) !void {
             const nanos: f64 = @floatFromInt(begin.durationTo(end).toNanoseconds());
             const bytes: f64 = @floatFromInt(content.items.len);
             const nanos_per_byte = nanos / bytes;
-            std.debug.print("percent_encoding.fmt: {} ns/B\n", .{ nanos_per_byte });
+            std.debug.print("percent_encoding.fmt: {} ns/B\n", .{nanos_per_byte});
         }
     }
 
@@ -84,7 +83,7 @@ pub fn main(init: std.process.Init) !void {
             const nanos: f64 = @floatFromInt(begin.durationTo(end).toNanoseconds());
             const bytes: f64 = @floatFromInt(content.items.len);
             const nanos_per_byte = nanos / bytes;
-            std.debug.print("percent_encoding.encode_writer: {} ns/B\n", .{ nanos_per_byte });
+            std.debug.print("percent_encoding.encode_writer: {} ns/B\n", .{nanos_per_byte});
         }
     }
 
@@ -102,7 +101,7 @@ pub fn main(init: std.process.Init) !void {
             const nanos: f64 = @floatFromInt(begin.durationTo(end).toNanoseconds());
             const bytes: f64 = @floatFromInt(content.items.len);
             const nanos_per_byte = nanos / bytes;
-            std.debug.print("std.Uri.Component.percentEncode: {} ns/B\n", .{ nanos_per_byte });
+            std.debug.print("std.Uri.Component.percentEncode: {} ns/B\n", .{nanos_per_byte});
         }
     }
 

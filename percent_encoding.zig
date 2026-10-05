@@ -42,7 +42,7 @@ pub const Encode_Options = struct {
     @"\\": Encode_Type,
     @"]": Encode_Type,
     @"^": Encode_Type,
-    @"_": Encode_Type,
+    _: Encode_Type,
     @"`": Encode_Type,
     @"{": Encode_Type,
     @"|": Encode_Type,
@@ -80,7 +80,7 @@ pub const Encode_Options = struct {
         .@"\\" = .percent_encoded,
         .@"]" = .percent_encoded,
         .@"^" = .percent_encoded,
-        .@"_" = .raw,
+        ._ = .raw,
         .@"`" = .percent_encoded,
         .@"{" = .percent_encoded,
         .@"|" = .percent_encoded,
@@ -119,7 +119,7 @@ pub const Encode_Options = struct {
         .@"\\" = .percent_encoded,
         .@"]" = .percent_encoded,
         .@"^" = .percent_encoded,
-        .@"_" = .percent_encoded,
+        ._ = .percent_encoded,
         .@"`" = .percent_encoded,
         .@"{" = .percent_encoded,
         .@"|" = .percent_encoded,
@@ -158,7 +158,7 @@ pub const Encode_Options = struct {
         .@"\\" = .raw,
         .@"]" = .raw,
         .@"^" = .raw,
-        .@"_" = .raw,
+        ._ = .raw,
         .@"`" = .raw,
         .@"{" = .raw,
         .@"|" = .raw,
@@ -205,7 +205,7 @@ pub const Encode_Options = struct {
             '\\' => options.@"\\" = new_encode_type,
             ']' => options.@"]" = new_encode_type,
             '^' => options.@"^" = new_encode_type,
-            '_' => options.@"_" = new_encode_type,
+            '_' => options._ = new_encode_type,
             '`' => options.@"`" = new_encode_type,
             '{' => options.@"{" = new_encode_type,
             '|' => options.@"|" = new_encode_type,
@@ -217,7 +217,7 @@ pub const Encode_Options = struct {
             },
             'B'...'Y', 'b'...'y' => @compileError("Use .override('A') to override alpha behavior or .override('Z') to override non-printable/non-ascii characters"),
             '1'...'9' => @compileError("Use .override('0') to override digit behavior"),
-            else => @compileError("Invalid encoding override character: " ++ &.{ char }),
+            else => @compileError("Invalid encoding override character: " ++ &.{char}),
         };
         return options;
     }
@@ -267,7 +267,7 @@ pub const Encode_Options = struct {
         if (self.@"\\" != self.other and c == '\\') return self.@"\\" != .raw;
         if (self.@"]" != self.other and c == ']') return self.@"]" != .raw;
         if (self.@"^" != self.other and c == '^') return self.@"^" != .raw;
-        if (self.@"_" != self.other and c == '_') return self.@"_" != .raw;
+        if (self._ != self.other and c == '_') return self._ != .raw;
         if (self.@"`" != self.other and c == '`') return self.@"`" != .raw;
         if (self.@"{" != self.other and c == '{') return self.@"{" != .raw;
         if (self.@"|" != self.other and c == '|') return self.@"|" != .raw;
@@ -360,8 +360,7 @@ fn test_encode_alloc(input: []const u8, comptime options: Encode_Options, expect
 
 pub fn encode_maybe_append(allocator: std.mem.Allocator, list: *std.ArrayList(u8), raw: []const u8, comptime options: Encode_Options) ![]const u8 {
     // `raw` must not reference the list's backing buffer, since it might be reallocated in this function.
-    std.debug.assert(@intFromPtr(raw.ptr) >= @intFromPtr(list.items.ptr + list.capacity)
-                  or @intFromPtr(list.items.ptr) >= @intFromPtr(raw.ptr + raw.len));
+    std.debug.assert(@intFromPtr(raw.ptr) >= @intFromPtr(list.items.ptr + list.capacity) or @intFromPtr(list.items.ptr) >= @intFromPtr(raw.ptr + raw.len));
 
     if (raw.len == 0) return raw;
 
@@ -536,8 +535,7 @@ fn test_decode_alloc(input: []const u8, comptime options: Decode_Options, expect
 
 pub fn decode_maybe_append(allocator: std.mem.Allocator, list: *std.ArrayList(u8), encoded: []const u8, comptime options: Decode_Options) ![]const u8 {
     // `encoded` must not reference the list's backing buffer, since it might be reallocated in this function.
-    std.debug.assert(@intFromPtr(encoded.ptr) >= @intFromPtr(list.items.ptr + list.capacity)
-                  or @intFromPtr(list.items.ptr) >= @intFromPtr(encoded.ptr + encoded.len));
+    std.debug.assert(@intFromPtr(encoded.ptr) >= @intFromPtr(list.items.ptr + list.capacity) or @intFromPtr(list.items.ptr) >= @intFromPtr(encoded.ptr + encoded.len));
 
     if (encoded.len == 0) return encoded;
 
@@ -688,7 +686,7 @@ test fmt {
     try test_fmt("[@*]", .init(.all, .{ .raw = "[]" }), "[%40%2A]");
 }
 fn test_fmt(input: []const u8, comptime options: Encode_Options, expected: []const u8) !void {
-    const temp = try std.fmt.allocPrint(std.testing.allocator, "{f}", .{ fmt(input, options) });
+    const temp = try std.fmt.allocPrint(std.testing.allocator, "{f}", .{fmt(input, options)});
     defer std.testing.allocator.free(temp);
     try std.testing.expectEqualStrings(expected, temp);
 }
