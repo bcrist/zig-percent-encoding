@@ -2,7 +2,7 @@
     .name = .percent_encoding,
     .fingerprint = 0x172ce91980b009c0,
     .version = "0.1.0",
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.0",
     .paths = .{
         "build.zig",
         "build.zig.zon",
